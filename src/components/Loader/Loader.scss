@@ -1,0 +1,15 @@
+.loader {
+  position: relative;
+
+  &__spinner {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding-top: 100px;
+    background: rgba(255, 255, 255, 0.7);
+  }
+}

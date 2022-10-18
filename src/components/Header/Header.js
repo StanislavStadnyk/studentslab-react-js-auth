@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Container,
   Collapse,
   Navbar,
   NavbarToggler,
-  NavbarBrand,
   Nav,
   NavItem,
-} from 'reactstrap';
-import { NavLink } from 'react-router-dom';
-import { PROD_URL } from '../..//config';
+} from "reactstrap";
+import { Link, NavLink } from "react-router-dom";
+
+import { PROD_URL } from "../../config";
+import AuthButton from "../AuthButton/AuthButton";
 
 const Students = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,27 +18,29 @@ const Students = () => {
   const toggle = () => setIsOpen(!isOpen);
 
   return (
-    <Navbar color='light' light expand='md' className='mb-5'>
+    <Navbar color="light" light expand="md" className="mb-5">
       <Container>
-        <NavbarBrand href={`${PROD_URL}`}>
+        <Link to={`${PROD_URL}`} className="navbar-brand">
           <strong>StudentsLab</strong>
-        </NavbarBrand>
+        </Link>
 
         <NavbarToggler onClick={toggle} />
 
         <Collapse isOpen={isOpen} navbar>
-          <Nav className='mr-auto' navbar>
-            <NavItem className='mr-3'>
-              <NavLink to={`${PROD_URL}`} exact className='nav-link'>
-                Home
+          <Nav className="mr-auto" navbar>
+            <NavItem className="mr-3">
+              <NavLink to={`${PROD_URL}`} exact className="nav-link">
+                Dashboard
               </NavLink>
             </NavItem>
-            <NavItem className='mr-3'>
-              <NavLink to={`${PROD_URL}/message`} className='nav-link'>
+            <NavItem className="mr-3">
+              <NavLink to={`${PROD_URL}/message`} className="nav-link">
                 Send Message
               </NavLink>
             </NavItem>
           </Nav>
+
+          <AuthButton />
         </Collapse>
       </Container>
     </Navbar>

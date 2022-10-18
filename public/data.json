@@ -16,7 +16,9 @@
         "id": 3,
         "message": "Ipsume lora Opsum dolor Lorem favourite"
       }
-    ]
+    ],
+    "editableByAdmin": true,
+    "testData": true
   },
   {
     "id": "2",
@@ -27,7 +29,9 @@
         "id": 1,
         "message": "Opsum dolor Lorem favourite"
       }
-    ]
+    ],
+    "editableByAdmin": true,
+    "testData": true
   },
   {
     "id": "3",
@@ -38,7 +42,9 @@
         "id": 1,
         "message": "Ipsume lora Opsum dolor Lorem favourite"
       }
-    ]
+    ],
+    "editableByAdmin": false,
+    "testData": true
   },
   {
     "id": "4",
@@ -49,7 +55,9 @@
         "id": 1,
         "message": "Lorem ipsum dolor"
       }
-    ]
+    ],
+    "editableByAdmin": false,
+    "testData": true
   },
   {
     "id": "5",
@@ -60,7 +68,9 @@
         "id": 1,
         "message": "Opsum dolor Lorem favourite"
       }
-    ]
+    ],
+    "editableByAdmin": true,
+    "testData": true
   },
   {
     "id": "6",
@@ -71,7 +81,9 @@
         "id": 1,
         "message": "Ipsume lora Opsum dolor Lorem favourite"
       }
-    ]
+    ],
+    "editableByAdmin": true,
+    "testData": true
   },
   {
     "id": "7",
@@ -82,7 +94,9 @@
         "id": 1,
         "message": "Lorem ipsum dolor"
       }
-    ]
+    ],
+    "editableByAdmin": false,
+    "testData": true
   },
   {
     "id": "8",
@@ -93,7 +107,9 @@
         "id": 1,
         "message": "Opsum dolor Lorem favourite"
       }
-    ]
+    ],
+    "editableByAdmin": false,
+    "testData": true
   },
   {
     "id": "9",
@@ -104,7 +120,9 @@
         "id": 1,
         "message": "Ipsume lora Opsum dolor Lorem favourite"
       }
-    ]
+    ],
+    "editableByAdmin": false,
+    "testData": true
   },
   {
     "id": "10",
@@ -115,6 +133,8 @@
         "id": 1,
         "message": "Ipsume lora Opsum dolor Lorem favourite"
       }
-    ]
+    ],
+    "editableByAdmin": false,
+    "testData": true
   }
 ]

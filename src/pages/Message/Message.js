@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef } from "react";
 import {
   Card,
   CardBody,
@@ -8,13 +8,14 @@ import {
   Input,
   Button,
   Alert,
-} from 'reactstrap';
-import { Typeahead } from 'react-bootstrap-typeahead';
+  FormText,
+} from "reactstrap";
+import { Typeahead } from "react-bootstrap-typeahead";
 
 const Message = ({ list, sendMessage }) => {
   const ref = useRef();
   const [selected, setSelected] = useState([]);
-  const [textInTextArea, setInTextArea] = useState('');
+  const [textInTextArea, setInTextArea] = useState("");
   const [isBtnSendDisabled, setBtnSendDisabled] = useState(true);
   const [isBtnClearDisabled, setBtnClearDisabled] = useState(true);
   const [isAlertSendMessage, setAlertSendMessage] = useState(false);
@@ -29,7 +30,7 @@ const Message = ({ list, sendMessage }) => {
   };
 
   const onInputChangeTypeahead = (value) => {
-    if (value === '') {
+    if (value === "") {
       setBtnClearDisabled(true);
     } else {
       setBtnClearDisabled(false);
@@ -41,25 +42,30 @@ const Message = ({ list, sendMessage }) => {
 
     setSelected([]);
     setBtnClearDisabled(true);
-    setInTextArea('');
+    setInTextArea("");
   };
 
   const onChangeTextarea = (e) => {
     setInTextArea(e.target.value);
 
-    if (e.target.value === '') {
+    if (e.target.value.length <= 5) {
       setBtnSendDisabled(true);
     } else {
       setBtnSendDisabled(false);
     }
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
+    // const { data: dataArray } = await supabase
+    //   .from("messages")
+    //   .insert(student)
+    //   .select();
+
     sendMessage(userSelected, {
       id: randomId,
       message: textInTextArea,
     });
-    setInTextArea('');
+    setInTextArea("");
     setAlertSendMessage(true);
   };
 
@@ -68,18 +74,19 @@ const Message = ({ list, sendMessage }) => {
     <div>
       <FormGroup>
         <Input
-          type='textarea'
-          name='text'
-          id='exampleText'
-          placeholder='Input message'
+          type="textarea"
+          name="text"
+          id="exampleText"
+          placeholder="Input message"
           defaultValue={textInTextArea}
           onChange={onChangeTextarea}
         />
+        <FormText>Min length 5 characters!</FormText>
       </FormGroup>
 
       <FormGroup>
         <Button
-          color='primary'
+          color="primary"
           disabled={isBtnSendDisabled}
           onClick={() => handleSendMessage()}
         >
@@ -90,7 +97,7 @@ const Message = ({ list, sendMessage }) => {
   );
 
   const alertSendMessage = selected.length === 1 && isAlertSendMessage && (
-    <Alert color='success'>
+    <Alert color="success">
       Your message for {userSelected.firstName} {userSelected.lastName} has been
       sent successfully!
     </Alert>
@@ -98,15 +105,15 @@ const Message = ({ list, sendMessage }) => {
 
   const typeAhead = (
     <FormGroup>
-      <div className='d-flex'>
-        <div className='flex-fill mr-3'>
+      <div className="d-flex">
+        <div className="flex-fill mr-3">
           <Typeahead
-            id='students-list'
+            id="students-list"
             labelKey={(option) => `${option.firstName} ${option.lastName}`}
             ref={ref}
             onChange={onChangeTypeahead}
             onInputChange={(e) => onInputChangeTypeahead(e)}
-            placeholder='Choose a student...'
+            placeholder="Choose a student..."
             options={list}
           />
         </div>
@@ -120,10 +127,10 @@ const Message = ({ list, sendMessage }) => {
   return (
     <Card>
       <CardBody>
-        <h4 className='mb-4'>Send message to anybody</h4>
+        <h4 className="mb-4">Send message to anybody</h4>
 
         <Row>
-          <Col md='8'>
+          <Col md="8">
             {typeAhead}
             {textareaAndBtn}
             {alertSendMessage}

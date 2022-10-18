@@ -1,7 +1,13 @@
-import React from 'react';
-import Students from './Students';
+import React from "react";
+import Students from "./Students";
 
-const StudentsContainer = ({ data, addUser, editUser, deleteUser }) => {
+const StudentsContainer = ({
+  data,
+  addUser,
+  editStudent,
+  deleteUser,
+  isLoading,
+}) => {
   if (!data) {
     return null;
   }
@@ -9,9 +15,10 @@ const StudentsContainer = ({ data, addUser, editUser, deleteUser }) => {
   return (
     <Students
       list={data}
-      addUser={addUser}
-      editUser={editUser}
-      deleteUser={deleteUser}
+      isLoading={isLoading}
+      addStudent={addUser}
+      editStudent={editStudent}
+      deleteStudent={deleteUser}
     />
   );
 };
