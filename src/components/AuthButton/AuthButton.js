@@ -1,8 +1,8 @@
 import React from "react";
 import { Button } from "reactstrap";
+import { Link } from "react-router-dom";
 
 import { useAuth } from "../../hooks";
-import { Link } from "react-router-dom";
 import { PROD_URL } from "../../config";
 
 const AuthButton = () => {

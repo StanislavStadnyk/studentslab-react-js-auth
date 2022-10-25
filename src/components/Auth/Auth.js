@@ -1,19 +1,28 @@
 import React, { useState } from "react";
+import { Redirect } from "react-router-dom";
+import {
+  Button,
+  Card,
+  CardBody,
+  Col,
+  Form,
+  FormGroup,
+  Input,
+  Row,
+} from "reactstrap";
 
 import { supabase } from "../../services/supabaseClient";
 import { useAuth } from "../../hooks";
-import { Redirect } from "react-router-dom";
 import { PROD_URL } from "../../config";
-
-// import "./Auth.scss";
+import Loader from "../Loader/Loader";
 
 const Auth = () => {
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
-  const auth = useAuth();
+  const { token } = useAuth();
 
-  if (auth.token) {
-    return <Redirect to={`${PROD_URL}`} exact />;
+  if (token) {
+    return <Redirect to={`${PROD_URL}`} />;
   }
 
   const handleLogin = async (e) => {
@@ -22,6 +31,7 @@ const Auth = () => {
     try {
       setLoading(true);
       const { error } = await supabase.auth.signInWithOtp({ email });
+
       if (error) throw error;
       alert("Check your email for the login link!");
     } catch (error) {
@@ -32,35 +42,42 @@ const Auth = () => {
   };
 
   return (
-    <div className="row flex-center flex">
-      <div className="col-6 form-widget offset-3" aria-live="polite">
-        <button type="button" onClick={auth.onLogout}>
-          Logout
-        </button>
-        <h1 className="header">Supabase + React</h1>
-        <p className="description">
-          Sign in via magic link with your email below
-        </p>
-        {loading ? (
-          "Sending magic link..."
-        ) : (
-          <form onSubmit={handleLogin}>
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              className="inputField"
-              type="email"
-              placeholder="Your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <button className="button block" aria-live="polite">
-              Send magic link
-            </button>
-          </form>
-        )}
-      </div>
-    </div>
+    <Row>
+      <Col
+        md={{
+          offset: 3,
+          size: 6,
+        }}
+      >
+        <Card>
+          <CardBody aria-live="polite">
+            <Loader isLoading={isLoading} text="Sending magic link...">
+              <h1 className="mb-4">Supabase + React</h1>
+              <p className="mb-4">
+                Sign in via magic link with your email below
+              </p>
+
+              <Form onSubmit={handleLogin}>
+                <FormGroup>
+                  <Input
+                    id="email"
+                    className="inputField"
+                    type="email"
+                    placeholder="Your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </FormGroup>
+
+                <Button color="success" block={true} className="text-uppercase">
+                  Send magic link
+                </Button>
+              </Form>
+            </Loader>
+          </CardBody>
+        </Card>
+      </Col>
+    </Row>
   );
 };
 

@@ -38,6 +38,11 @@ const Students = () => {
                 Send Message
               </NavLink>
             </NavItem>
+            <NavItem className="mr-3">
+              <NavLink to={`${PROD_URL}/profile`} className="nav-link">
+                Profile
+              </NavLink>
+            </NavItem>
           </Nav>
 
           <AuthButton />

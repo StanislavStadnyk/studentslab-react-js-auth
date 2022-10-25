@@ -184,7 +184,7 @@ const Students = ({
 
         <Row>
           <Col md="8">
-            <div style={{ overflowY: "auto", maxHeight: 500 }}>
+            <div style={{ overflowY: "auto", maxHeight: 600 }}>
               <Loader isLoading={isLoading}>
                 <ListGroup>
                   {studentsList.length > 0 ? (

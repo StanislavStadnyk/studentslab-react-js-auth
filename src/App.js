@@ -6,12 +6,15 @@ import {
   Redirect,
 } from "react-router-dom";
 
+// TODO: make clear import file
 import { StudentsContainer, MessageContainer } from "./pages/index";
 import { Auth, Header, Layout } from "./components/index";
+// TODO: need to refactor PROD URL
 import { PROD_URL } from "./config";
 import { supabase } from "./services/supabaseClient";
 import AuthProvider from "./components/AuthProvider/AuthProvider";
 import ProtectedRouter from "./components/ProtectedRouter/ProtectedRouter";
+import { Profile } from "./pages";
 
 const App = () => {
   const [studentsDataList, setStudentsDataList] = useState(null);
@@ -20,6 +23,7 @@ const App = () => {
   useEffect(() => {
     getData();
 
+    // TODO: request for messages from table
     // const promiseSupabaseData = await supabase
     //   .from("students")
     //   .select()
@@ -46,7 +50,11 @@ const App = () => {
       }
 
       delete student.testData;
-      await supabase.from("students").update(student).eq("id", student.id);
+      const { error } = await supabase
+        .from("students")
+        .update(student)
+        .eq("id", student.id);
+      if (error) throw error;
 
       setStudentsDataList([
         ...studentsDataList.slice(0, index),
@@ -63,10 +71,11 @@ const App = () => {
   const handleAddStudent = async (student) => {
     try {
       setLoading(true);
-      const { data: dataArray } = await supabase
+      const { data: dataArray, error } = await supabase
         .from("students")
         .insert(student)
         .select();
+      if (error) throw error;
 
       setStudentsDataList([...studentsDataList, dataArray[0]]);
     } catch (error) {
@@ -118,12 +127,12 @@ const App = () => {
         const [localData, supabaseData] = values;
 
         if (supabaseData?.data.length) {
-          const data = localData.concat(supabaseData.data);
+          const data = localData.students.concat(supabaseData.data);
           setStudentsDataList(data);
           return;
         }
 
-        setStudentsDataList(localData);
+        setStudentsDataList(localData.students);
       })
       .catch((err) => {
         console.error("getData Promise.all", err);
@@ -140,6 +149,7 @@ const App = () => {
             <Route path={`${PROD_URL}/login`} exact>
               <Auth />
             </Route>
+
             <Route path={`${PROD_URL}`} exact>
               <ProtectedRouter>
                 <StudentsContainer
@@ -152,11 +162,17 @@ const App = () => {
               </ProtectedRouter>
             </Route>
 
-            <Route path={`${PROD_URL}/message`}>
+            <Route path={`${PROD_URL}/message`} exact>
               <MessageContainer
                 data={studentsDataList}
                 sendMessage={handleSendMessage}
               />
+            </Route>
+
+            <Route path={`${PROD_URL}/profile`} exact>
+              <ProtectedRouter>
+                <Profile />
+              </ProtectedRouter>
             </Route>
 
             <Route path="*">

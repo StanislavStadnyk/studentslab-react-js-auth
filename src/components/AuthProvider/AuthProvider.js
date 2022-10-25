@@ -1,16 +1,37 @@
 import React, { createContext, useEffect, useState } from "react";
-import { supabase } from "../../services/supabaseClient";
 import { Redirect } from "react-router-dom";
+
+import { supabase } from "../../services/supabaseClient";
 import { PROD_URL } from "../../config";
 
+// global context
 export const AuthContext = createContext(null);
 
 const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      console.log("getSession", session);
       setSession(session);
+
+      if (session) {
+        // check if the user exists in profiles table
+        const { status, error } = await supabase
+          .from("profiles")
+          .select()
+          .eq("id", session.user.id);
+        if (error) throw error;
+
+        // if user doesn't exist in profile table, add him to profile table
+        if (status !== 200) {
+          const { error } = await supabase.from("profiles").insert({
+            id: session.user.id,
+          });
+          if (error) throw error;
+        }
+      }
     });
 
     supabase.auth.onAuthStateChange((_event, session) => {
@@ -25,9 +46,23 @@ const AuthProvider = ({ children }) => {
     return <Redirect to={`${PROD_URL}/login`} />;
   };
 
+  const handleSetProfile = (profile) => {
+    setProfile(profile);
+  };
+
   const value = {
-    token: session?.access_token,
+    // TODO: need to refactor local storage
+    user:
+      JSON.parse(
+        window.localStorage.getItem("sb-xftszbubwqexxryeewfj-auth-token")
+      )?.user || session?.user,
+    token:
+      JSON.parse(
+        window.localStorage.getItem("sb-xftszbubwqexxryeewfj-auth-token")
+      )?.access_token || session?.access_token,
     onLogout: handleLogout,
+    profile,
+    setProfile: handleSetProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
