@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "5d24f6e7afe997533d9f27b160d02af9",
+    "revision": "4eda163e3d64d1459b524d1892b74d4e",
     "url": "/studentslab-react-js-auth/index.html"
   },
   {
