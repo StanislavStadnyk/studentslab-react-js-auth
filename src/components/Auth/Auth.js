@@ -10,6 +10,7 @@ import {
   Input,
   Row,
 } from "reactstrap";
+import { toast } from "react-toastify";
 
 import { supabase } from "../../services/supabaseClient";
 import { useAuth } from "../../hooks";
@@ -19,13 +20,14 @@ import Loader from "../Loader/Loader";
 const Auth = () => {
   const [isLoading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
+  const isBtnDisabled = email === "";
   const { token } = useAuth();
 
   if (token) {
     return <Redirect to={`${PROD_URL}`} />;
   }
 
-  const handleLogin = async (e) => {
+  const handleOnSubmit = async (e) => {
     e.preventDefault();
 
     try {
@@ -33,13 +35,19 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithOtp({ email });
 
       if (error) throw error;
-      alert("Check your email for the login link!");
+      toast("Check your email for the login link!", {
+        type: "success",
+      });
     } catch (error) {
-      alert(error.error_description || error.message);
+      toast(error.error_description || error.message, {
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
   };
+
+  const handleOnChange = (e) => setEmail(e.target.value);
 
   return (
     <Row>
@@ -57,7 +65,7 @@ const Auth = () => {
                 Sign in via magic link with your email below
               </p>
 
-              <Form onSubmit={handleLogin}>
+              <Form onSubmit={handleOnSubmit}>
                 <FormGroup>
                   <Input
                     id="email"
@@ -65,11 +73,17 @@ const Auth = () => {
                     type="email"
                     placeholder="Your email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={handleOnChange}
                   />
                 </FormGroup>
 
-                <Button color="success" block={true} className="text-uppercase">
+                <Button
+                  color="success"
+                  block={true}
+                  className="text-uppercase"
+                  type="submit"
+                  disabled={isBtnDisabled}
+                >
                   Send magic link
                 </Button>
               </Form>

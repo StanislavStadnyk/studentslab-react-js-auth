@@ -5,6 +5,7 @@ import {
   Route,
   Redirect,
 } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 
 // TODO: make clear import file
 import { StudentsContainer, MessageContainer } from "./pages/index";
@@ -180,6 +181,8 @@ const App = () => {
             </Route>
           </Switch>
         </Layout>
+
+        <ToastContainer />
       </Router>
     </AuthProvider>
   );
