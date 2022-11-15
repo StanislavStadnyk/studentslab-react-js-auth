@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { toast } from "react-toastify";
 import {
   Button,
   Card,
@@ -20,36 +21,6 @@ const Profile = () => {
   const [isLoading, setLoading] = useState(false);
   const { user, profile, setProfile } = useAuth();
 
-  const getProfile = async () => {
-    try {
-      setLoading(true);
-
-      let { data, error, status } = await supabase
-        .from("profiles")
-        .select(`username, website, avatar_url`)
-        .eq("id", user.id)
-        .single();
-      if (error && status !== 406) throw error;
-
-      if (data) {
-        setProfile({
-          username: data.username,
-          website: data.website,
-          avatar_url: data.avatar_url,
-        });
-      }
-    } catch (error) {
-      alert(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    // TODO: need to remove warning
-    if (!profile) getProfile();
-  }, [profile]);
-
   const updateProfile = async (e) => {
     e.preventDefault();
 
@@ -58,16 +29,21 @@ const Profile = () => {
 
       const updates = {
         id: user.id,
-        username: profile.username,
-        website: profile.website,
-        avatar_url: profile.avatar_url,
+        username: profile?.username || null,
+        website: profile?.website || null,
+        avatar_url: profile?.avatar_url || null,
         updated_at: new Date(),
       };
 
       const { error } = await supabase.from("profiles").upsert(updates);
       if (error) throw error;
+      toast("Profile has been updated!", {
+        type: "success",
+      });
     } catch (error) {
-      alert(error.message);
+      toast(error.message, {
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }

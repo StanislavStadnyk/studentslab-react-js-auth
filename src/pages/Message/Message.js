@@ -9,18 +9,24 @@ import {
   Button,
   Alert,
   FormText,
+  Form,
 } from "reactstrap";
 import { Typeahead } from "react-bootstrap-typeahead";
+import { toast } from "react-toastify";
 
-const Message = ({ list, sendMessage }) => {
+import { useAuth } from "../../hooks";
+import { supabase } from "../../services/supabaseClient";
+import Loader from "../../components/Loader/Loader";
+
+const Message = ({ list }) => {
   const ref = useRef();
   const [selected, setSelected] = useState([]);
   const [textInTextArea, setInTextArea] = useState("");
   const [isBtnSendDisabled, setBtnSendDisabled] = useState(true);
   const [isBtnClearDisabled, setBtnClearDisabled] = useState(true);
   const [isAlertSendMessage, setAlertSendMessage] = useState(false);
-
-  const randomId = parseInt(Math.random(new Date()) * 1000000);
+  const [isLoading, setLoading] = useState(false);
+  const data = useAuth();
 
   const onChangeTypeahead = (item) => {
     setSelected(item);
@@ -55,18 +61,31 @@ const Message = ({ list, sendMessage }) => {
     }
   };
 
-  const handleSendMessage = async () => {
-    // const { data: dataArray } = await supabase
-    //   .from("messages")
-    //   .insert(student)
-    //   .select();
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
 
-    sendMessage(userSelected, {
-      id: randomId,
-      message: textInTextArea,
-    });
-    setInTextArea("");
-    setAlertSendMessage(true);
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from("messages")
+        .insert({
+          text: textInTextArea,
+          authorName: data?.profile?.username,
+          studentId: userSelected.id,
+        })
+        .select();
+
+      if (error) throw error;
+
+      setInTextArea("");
+      setAlertSendMessage(true);
+    } catch (error) {
+      toast(error.message, {
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const userSelected = selected.length === 1 && selected[0];
@@ -85,11 +104,7 @@ const Message = ({ list, sendMessage }) => {
       </FormGroup>
 
       <FormGroup>
-        <Button
-          color="primary"
-          disabled={isBtnSendDisabled}
-          onClick={() => handleSendMessage()}
-        >
+        <Button color="primary" type="submit" disabled={isBtnSendDisabled}>
           Send message
         </Button>
       </FormGroup>
@@ -131,9 +146,13 @@ const Message = ({ list, sendMessage }) => {
 
         <Row>
           <Col md="8">
-            {typeAhead}
-            {textareaAndBtn}
-            {alertSendMessage}
+            <Loader isLoading={isLoading}>
+              <Form onSubmit={handleSendMessage}>
+                {typeAhead}
+                {textareaAndBtn}
+                {alertSendMessage}
+              </Form>
+            </Loader>
           </Col>
         </Row>
       </CardBody>

@@ -39,7 +39,7 @@ const Auth = () => {
         type: "success",
       });
     } catch (error) {
-      toast(error.error_description || error.message, {
+      toast(error.message, {
         type: "error",
       });
     } finally {

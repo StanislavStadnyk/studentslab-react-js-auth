@@ -1,13 +1,13 @@
-import React from 'react';
+import React from "react";
 
-import Message from './Message';
+import Message from "./Message";
 
-const MessageContainer = ({ data, sendMessage }) => {
+const MessageContainer = ({ data }) => {
   if (!data) {
     return null;
   }
 
-  return <Message list={data} sendMessage={sendMessage} />;
+  return <Message list={data} />;
 };
 
 export default MessageContainer;

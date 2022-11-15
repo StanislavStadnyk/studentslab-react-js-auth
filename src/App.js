@@ -23,14 +23,6 @@ const App = () => {
 
   useEffect(() => {
     getData();
-
-    // TODO: request for messages from table
-    // const promiseSupabaseData = await supabase
-    //   .from("students")
-    //   .select()
-    //   .filter("id", "in", "(47, 49)");
-    //
-    // console.log("promiseSupabaseData", promiseSupabaseData);
   }, []);
 
   const handleEditStudent = async (student) => {
@@ -103,20 +95,6 @@ const App = () => {
     }
   };
 
-  const handleSendMessage = (user, message) => {
-    const updatedMessages = [...user.messages, message];
-    const userWithNewMessage = { ...user, messages: updatedMessages };
-    const index = studentsDataList.findIndex(
-      (userItem) => userItem.id === user.id
-    );
-
-    setStudentsDataList([
-      ...studentsDataList.slice(0, index),
-      userWithNewMessage,
-      ...studentsDataList.slice(index + 1),
-    ]);
-  };
-
   const getData = () => {
     const promiseLocalData = fetch(`${PROD_URL}/data.json`).then((res) =>
       res.json()
@@ -164,10 +142,7 @@ const App = () => {
             </Route>
 
             <Route path={`${PROD_URL}/message`} exact>
-              <MessageContainer
-                data={studentsDataList}
-                sendMessage={handleSendMessage}
-              />
+              <MessageContainer data={studentsDataList} />
             </Route>
 
             <Route path={`${PROD_URL}/profile`} exact>
@@ -182,7 +157,7 @@ const App = () => {
           </Switch>
         </Layout>
 
-        <ToastContainer />
+        <ToastContainer autoClose={2000} />
       </Router>
     </AuthProvider>
   );

@@ -18,11 +18,21 @@ const AuthProvider = ({ children }) => {
 
       if (session) {
         // check if the user exists in profiles table
-        const { status, error } = await supabase
+        const { status, error, data } = await supabase
           .from("profiles")
           .select()
           .eq("id", session.user.id);
         if (error) throw error;
+
+        if (data) {
+          const [user] = data;
+
+          setProfile({
+            username: user?.username,
+            website: user?.website,
+            avatar_url: user?.avatar_url,
+          });
+        }
 
         // if user doesn't exist in profile table, add him to profile table
         if (status !== 200) {

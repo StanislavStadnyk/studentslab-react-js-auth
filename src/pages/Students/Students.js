@@ -16,8 +16,14 @@ import {
   UncontrolledCollapse,
   Alert,
   UncontrolledTooltip,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupText,
 } from "reactstrap";
-import { BsInfoCircle } from "react-icons/bs";
+import { toast } from "react-toastify";
+import { BsInfoCircle, BsSearch } from "react-icons/bs";
+import { supabase } from "../../services/supabaseClient";
+
 import Loader from "../../components/Loader/Loader";
 import { ConfirmationModal } from "../../components/modals";
 
@@ -40,6 +46,10 @@ const Students = ({
   const [isModalShow, setModal] = useState(false);
   const [isConfirmationModalShow, setConfirmationModal] = useState(false);
 
+  const [isMessagesLoading, setMessagesLoading] = useState(false);
+  const [openCurrentItem, setOpenCurrentItem] = useState(null);
+  const [messages, setMessages] = useState([]);
+
   const editMode = (id) => {
     setEditCurrentItem(list.find((user) => user.id === id));
     toggleModal();
@@ -49,28 +59,89 @@ const Students = ({
 
   const isAddStudentValid = !(firstName !== "" && lastName !== "");
 
-  const messagesBlock = (student) => (
-    <UncontrolledCollapse
-      toggler={`#student-${student.lastName.replace(/\s/g, "") + student.id}`}
-    >
-      <div className="mt-3">
-        {student.messages?.length > 0 ? (
-          <>
-            <p>Messages:</p>
-            {student.messages.map((message) => {
-              return (
-                <Alert color="info" key={message.id}>
-                  {message.message}
-                </Alert>
-              );
-            })}
-          </>
-        ) : (
-          <p>No messages yet!</p>
-        )}
-      </div>
-    </UncontrolledCollapse>
-  );
+  const getMessagesByStudentId = async (student) => {
+    setOpenCurrentItem(student.id);
+    try {
+      setMessagesLoading(true);
+      const { data, error } = await supabase
+        .from("messages")
+        .select()
+        .eq("studentId", student.id);
+
+      if (error) throw error;
+
+      const messageIndex =
+        messages.length > 0
+          ? messages.findIndex((message) => message.studentId === student.id)
+          : -1;
+
+      if (messageIndex !== -1) {
+        const updated = [...messages, (messages[messageIndex].messages = data)];
+        setMessages(updated);
+      } else {
+        const updated = [
+          ...messages,
+          {
+            studentId: student.id,
+            messages: data,
+          },
+        ];
+        setMessages(updated);
+      }
+    } catch (error) {
+      toast(error.message, {
+        type: "error",
+      });
+    } finally {
+      setMessagesLoading(false);
+    }
+  };
+
+  const messagesBlock = (student) => {
+    const studentMessages = messages.filter(
+      (message) => message.studentId === student.id
+    );
+
+    return (
+      <UncontrolledCollapse
+        onEntering={() => getMessagesByStudentId(student)}
+        toggler={`#student-${student.lastName.replace(/\s/g, "") + student.id}`}
+      >
+        <Loader isLoading={isMessagesLoading && openCurrentItem === student.id}>
+          <div className="mt-3">
+            {studentMessages[0]?.messages?.length ? (
+              <>
+                <p>Messages:</p>
+                <ul className="list-unstyled">
+                  {studentMessages[0].messages.map((message) => {
+                    return (
+                      <li>
+                        <div className="d-flex justify-content-between align-items-end">
+                          <em style={{ fontSize: 10 }}>
+                            {new Date(message.createdAt).toLocaleString()}
+                          </em>
+                          <strong style={{ fontSize: 12 }}>
+                            {message.authorName
+                              ? message.authorName
+                              : "Anonymous :)"}
+                          </strong>
+                        </div>
+                        <Alert color="info" key={message.id}>
+                          {message.text}
+                        </Alert>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </>
+            ) : (
+              <p>No messages here yet!</p>
+            )}
+          </div>
+        </Loader>
+      </UncontrolledCollapse>
+    );
+  };
 
   const handleToggleConfirmationModal = () => {
     setConfirmationModal(!isConfirmationModalShow);
@@ -175,16 +246,22 @@ const Students = ({
   );
 
   return (
-    <Card>
+    <Card className="mb-4">
       <CardBody>
         <h4 className="mb-4">
           Students list{" "}
           <em style={{ fontSize: 14 }}>(scroll down for more records)</em>
         </h4>
 
-        <Row>
+        <Row className="flex-column-reverse flex-md-row">
           <Col md="8">
-            <div style={{ overflowY: "auto", maxHeight: 600 }}>
+            <div
+              style={{
+                overflowY: "auto",
+                maxHeight: 600,
+                paddingBottom: "1rem",
+              }}
+            >
               <Loader isLoading={isLoading}>
                 <ListGroup>
                   {studentsList.length > 0 ? (
@@ -198,7 +275,24 @@ const Students = ({
           </Col>
 
           <Col md="4">
+            <div className="mb-5">
+              <FormGroup>
+                <InputGroup>
+                  <Input
+                    placeholder="Search student"
+                    // onChange={searchStudent}
+                  />
+                  <InputGroupAddon addonType="append">
+                    <InputGroupText>
+                      <BsSearch />
+                    </InputGroupText>
+                  </InputGroupAddon>
+                </InputGroup>
+              </FormGroup>
+            </div>
+
             <div className="mb-4">
+              <h6>Add a new student</h6>
               <FormGroup>
                 <Input
                   name="firstName"
