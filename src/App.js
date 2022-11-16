@@ -19,87 +19,17 @@ import { Profile } from "./pages";
 
 const App = () => {
   const [studentsDataList, setStudentsDataList] = useState(null);
-  const [isLoading, setLoading] = useState(false);
-
-  useEffect(() => {
-    getData();
-  }, []);
-
-  const handleEditStudent = async (student) => {
-    const index = studentsDataList.findIndex(
-      (userItem) => userItem.id === student.id
-    );
-
-    try {
-      setLoading(true);
-
-      if (student?.testData) {
-        setStudentsDataList([
-          ...studentsDataList.slice(0, index),
-          student,
-          ...studentsDataList.slice(index + 1),
-        ]);
-        return;
-      }
-
-      delete student.testData;
-      const { error } = await supabase
-        .from("students")
-        .update(student)
-        .eq("id", student.id);
-      if (error) throw error;
-
-      setStudentsDataList([
-        ...studentsDataList.slice(0, index),
-        student,
-        ...studentsDataList.slice(index + 1),
-      ]);
-    } catch (error) {
-      alert(error.error_description || error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleAddStudent = async (student) => {
-    try {
-      setLoading(true);
-      const { data: dataArray, error } = await supabase
-        .from("students")
-        .insert(student)
-        .select();
-      if (error) throw error;
-
-      setStudentsDataList([...studentsDataList, dataArray[0]]);
-    } catch (error) {
-      alert(error.error_description || error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteStudent = async (student) => {
-    const index = studentsDataList.findIndex((user) => user.id === student.id);
-
-    try {
-      setLoading(true);
-      await supabase.from("students").delete().eq("id", student.id);
-      setStudentsDataList([
-        ...studentsDataList.slice(0, index),
-        ...studentsDataList.slice(index + 1, studentsDataList.length),
-      ]);
-    } catch (error) {
-      alert(error.error_description || error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [isDataLoading, setDataLoading] = useState(false);
 
   const getData = () => {
+    setDataLoading(true);
     const promiseLocalData = fetch(`${PROD_URL}/data.json`).then((res) =>
       res.json()
     );
-    const promiseSupabaseData = supabase.from("students").select();
+    const promiseSupabaseData = supabase
+      .from("students")
+      .select()
+      .order("id", { ascending: true });
 
     Promise.all([promiseLocalData, promiseSupabaseData])
       .then((values) => {
@@ -115,8 +45,13 @@ const App = () => {
       })
       .catch((err) => {
         console.error("getData Promise.all", err);
-      });
+      })
+      .finally(() => setDataLoading(false));
   };
+
+  useEffect(() => {
+    getData();
+  }, []);
 
   return (
     <AuthProvider>
@@ -133,10 +68,9 @@ const App = () => {
               <ProtectedRouter>
                 <StudentsContainer
                   data={studentsDataList}
-                  isLoading={isLoading}
-                  editStudent={handleEditStudent}
-                  addUser={handleAddStudent}
-                  deleteUser={handleDeleteStudent}
+                  isDataLoading={isDataLoading}
+                  onDataLoading={setDataLoading}
+                  onSetData={setStudentsDataList}
                 />
               </ProtectedRouter>
             </Route>
